@@ -1,5 +1,6 @@
 import { FavoriteBorderOutlined, SearchOutlined, ShoppingCartOutlined } from '@material-ui/icons'
 import React from 'react'
+import { Link } from 'react-router-dom'
 import styled from 'styled-components'
 
 
@@ -12,13 +13,24 @@ top: 0;
 left: 0;
 background-color: rgba(0,0,0,0.2);
 z-index:3;
-display: flex;
 align-items: center;
 justify-content: center;
 transition: all 0.5s ease;
 cursor: pointer;
 `
+const Title = styled.h3`
+font-size: 20;
+text-align: center;
+color: #323233
+`
+const IconContainer = styled.div`
+display: flex;
+width: 90%;
+height: 90%;
+align-items: center;
+justify-content: center;
 
+`
 
 const Container = styled.div`
 flex: 1;
@@ -72,18 +84,23 @@ const Product = ({ item }) => {
     return (
         <Container>
             <Circle />
-            <Image src={item.img} />
+            <Image src={item.image} />
 
             <Info>
-                <Icon>
-                    <ShoppingCartOutlined />
-                </Icon>
-                <Icon>
-                    <SearchOutlined />
-                </Icon>
-                <Icon>
-                    <FavoriteBorderOutlined />
-                </Icon>
+                <Link to={`products/${item._id}`} style={{ color: "inherit", textDecoration: "none" }}>
+                    <IconContainer>
+                        <Icon>
+                            <ShoppingCartOutlined />
+                        </Icon>
+                        <Icon>
+                            <SearchOutlined />
+                        </Icon>
+                        <Icon>
+                            <FavoriteBorderOutlined />
+                        </Icon>
+                    </IconContainer>
+                    <Title>{item.title}</Title>
+                </Link>
             </Info>
         </Container>
     )

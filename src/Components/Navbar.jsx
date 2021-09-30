@@ -1,9 +1,11 @@
+import { useContext } from 'react'
 import { Badge } from '@material-ui/core'
 import { Search, ShoppingCartOutlined } from '@material-ui/icons'
 import React from 'react'
 import styled from 'styled-components'
 import { mobile } from '../responsive'
-
+import { Link } from 'react-router-dom'
+import { AuthContext } from '../context/AuthContext'
 
 const Container = styled.div`
 height: 60px;
@@ -70,6 +72,18 @@ ${mobile({ fontSize: "12px", marginLeft: "10px" })}
 
 
 const Navbar = () => {
+
+    // const [cart, setCart] = useState({})
+    // useEffect(() => {
+    //     const getCart = () => {
+
+    //     }
+    // })
+    const { user } = useContext(AuthContext)
+    const logout = () => {
+        localStorage.clear()
+        window.location.reload()
+    }
     return (
         <Container>
             <Wrapper>
@@ -80,15 +94,24 @@ const Navbar = () => {
                         <Search style={{ color: "gray", fontSize: 16 }} />
                     </SearchContainer>
                 </Left>
+
+
                 <Center>
-                    <Logo>MTM</Logo>
+                    <Link to='/' style={{ textDecoration: "none", color: "inherit" }}><Logo>MTM</Logo></Link>
                 </Center>
                 <Right>
-                    <MenuItem>REGISTER</MenuItem>
-                    <MenuItem>LOGIN</MenuItem>
+                    {
+                        user ?
+
+                            <MenuItem onClick={logout}>LOGOUT</MenuItem> :
+                            <>
+                                <Link to='/register' style={{ textDecoration: "none", color: "inherit" }}> <MenuItem>REGISTER</MenuItem></Link>
+                                <Link to='/login' style={{ textDecoration: "none", color: "inherit" }}><MenuItem>LOGIN</MenuItem></Link>
+                            </>
+                    }
                     <MenuItem>
                         <Badge badgeContent={3} color="primary">
-                            <ShoppingCartOutlined />
+                            <Link to='/cart' style={{ textDecoration: "none", color: "inherit" }}> <ShoppingCartOutlined /> </Link>
                         </Badge>
                     </MenuItem>
 

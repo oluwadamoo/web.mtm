@@ -1,6 +1,10 @@
-import React from 'react'
+import React, { useRef, useContext } from 'react'
 import styled from 'styled-components'
 import { mobile } from '../responsive'
+import { useHistory } from 'react-router'
+import { AuthContext } from '../context/AuthContext'
+import { loginCall } from '../apiCalls'
+import { CircularProgress } from '@material-ui/core'
 
 const Container = styled.div`
 width: 100vw;
@@ -60,23 +64,39 @@ cursor: pointer;
 margin-bottom: 10px;
 `
 
+
+
 const Login = () => {
+    const username = useRef()
+    const password = useRef()
+    const history = useHistory()
+    const { isFetching, dispatch } = useContext(AuthContext)
+
+    const handleLogin = (e) => {
+        e.preventDefault()
+        loginCall({
+            username: username.current.value,
+            password: password.current.value
+        }, dispatch)
+
+        history.goBack()
+    }
     return (
         <Container>
 
             <Wrapper>
 
                 <Title>SIGN IN</Title>
-                <Form>
+                <Form onSubmit={handleLogin}>
 
-                    <Input placeholder="username" />
+                    <Input placeholder="username" ref={username} required />
 
-                    <Input placeholder="password" />
+                    <Input placeholder="password" ref={password} type="password" />
 
-                    <Button>LOGIN</Button>
+                    <Button type="submit">{isFetching ? <CircularProgress color="inherit" size="20px" /> : "LOGIN"}</Button>
 
                     <Link>DO YOU NOT REMEMBER YOUR PASSWORD?</Link>
-                    <Link>CREATE A NEW ACCOUNT</Link>
+                    <Link onClick={() => history.push('/register')}>{isFetching ? <CircularProgress color="inherit" size="20px" /> : "CREATE A NEW ACCOUNT"}</Link>
                 </Form>
             </Wrapper>
         </Container>

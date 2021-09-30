@@ -1,6 +1,7 @@
-import React from 'react'
+import axios from 'axios'
+import React, { useEffect, useState } from 'react'
 import styled from 'styled-components'
-import { popularProducts } from '../data'
+// import { popularProducts } from '../data'
 import Product from './Product'
 
 
@@ -16,10 +17,24 @@ justify-content: space-between;
 
 
 const Products = () => {
+
+    const [products, setProducts] = useState([])
+    useEffect(() => {
+        const fetchProducts = async () => {
+            try {
+                const res = await axios.get("https://mythriftmall-api.herokuapp.com/api/products/")
+                setProducts(res.data)
+                console.log(res.data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+        fetchProducts()
+    }, [])
     return (
         <Container>
-            {popularProducts.map(item => (
-                <Product item={item} key={item.id} />
+            {products.length > 0 && products.map(item => (
+                <Product item={item} key={item._id} />
             ))}
         </Container>
     )

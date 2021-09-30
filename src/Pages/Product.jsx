@@ -1,12 +1,15 @@
+import { useParams } from 'react-router-dom'
+import { useHistory } from 'react-router'
 import { Add, Remove } from '@material-ui/icons'
-import React from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import styled from 'styled-components'
 import Announcement from '../Components/Announcement'
 import Footer from '../Components/Footer'
 import Navbar from '../Components/Navbar'
 import NewsLetter from '../Components/NewsLetter'
 import { mobile } from '../responsive'
-
+import axios from 'axios'
+import { AuthContext } from '../context/AuthContext'
 
 const Container = styled.div`
 
@@ -130,6 +133,62 @@ font-weight: 500;
 `
 
 const Product = () => {
+    const params = useParams()
+    const [product, setProduct] = useState({})
+    const [amount, setAmount] = useState(0)
+    const { user } = useContext(AuthContext)
+    useEffect(() => {
+        const fetchProduct = async () => {
+            try {
+                const res = await axios.get(`https://mythriftmall-api.herokuapp.com/api/products/find/${params.id}`)
+                setProduct(res.data)
+            } catch (e) {
+                console.log(e)
+            }
+        }
+        fetchProduct()
+    }, [params])
+
+
+    const headers = {
+        "token": "Bearer " + user?.accessToken
+    }
+    const data = {
+        userId: user._id,
+        products: [
+            {
+                productId: params.id,
+                quantity: amount
+            }
+        ]
+    }
+
+    const history = useHistory()
+
+    const addToCart = async () => {
+        if (!user) {
+            return history.push('/login')
+        }
+        try {
+            const isCart = await axios.get(`https://mythriftmall-api.herokuapp.com/api/cart/find/${user._id}`, { headers: headers })
+            console.log(isCart)
+            console.log(data)
+            if (isCart.data !== null) {
+                const res = await axios.put(`https://mythriftmall-api.herokuapp.com/api/cart/${isCart._id}`, data, {
+                    headers: headers
+                })
+                console.log(res)
+            } else {
+                const res = await axios.post('https://mythriftmall-api.herokuapp.com/api/cart/', data, {
+                    headers: headers
+                })
+                console.log(res)
+            }
+
+        } catch (e) {
+            console.log(e)
+        }
+    }
     return (
         <Container>
             <Announcement />
@@ -137,45 +196,42 @@ const Product = () => {
 
             <Wrapper>
                 <ImageContainer>
-                    <Image src="https://i.ibb.co/S6qMxwr/jean.jpg" />
+                    <Image src={product?.image} />
                 </ImageContainer>
 
                 <InfoContainer>
-                    <Title>Denim Jumpsuit</Title>
+                    <Title>{product.title}</Title>
 
-                    <Description>Lorem ipsum dolor sit amet consectetur adipisicing
-                        elit. Doloremque eos sapiente voluptate ipsa voluptatibus
-                        esse earum odio ex similique, beatae ullam corrupti
-                        repellendus officiis consequuntur ad dolor veritatis laborum expedita.
+                    <Description>{product.description}
                     </Description>
-                    <Price>N 200</Price>
+                    <Price>N {product.price}</Price>
                     <FilterContainer>
                         <Filter>
                             <FilterTitle>Color</FilterTitle>
-                            <FilterColor color="black" />
-                            <FilterColor color="darkblue" />
-                            <FilterColor color="gray" />
+                            <FilterColor color={product.color} />
+                            {/* <FilterColor color="darkblue" />
+                            <FilterColor color="gray" /> */}
                         </Filter>
 
                         <Filter>
                             <FilterTitle>Size</FilterTitle>
                             <FilterSize>
-                                <FilterSizeOption>XS</FilterSizeOption>
-                                <FilterSizeOption>S</FilterSizeOption>
+                                <FilterSizeOption>{product.size}</FilterSizeOption>
+                                {/* <FilterSizeOption>S</FilterSizeOption>
                                 <FilterSizeOption>M</FilterSizeOption>
                                 <FilterSizeOption>L</FilterSizeOption>
-                                <FilterSizeOption>XL</FilterSizeOption>
+                                <FilterSizeOption>XL</FilterSizeOption> */}
                             </FilterSize>
                         </Filter>
                     </FilterContainer>
 
                     <AddContainer>
                         <AmountContainer>
-                            <Remove />
-                            <Amount>1</Amount>
-                            <Add />
+                            <Remove onClick={() => amount > 0 && setAmount(amount - 1)} style={{ cursor: "pointer" }} />
+                            <Amount>{amount}</Amount>
+                            <Add onClick={() => setAmount(amount + 1)} style={{ cursor: "pointer" }} />
                         </AmountContainer>
-                        <Button>ADD TO CART</Button>
+                        <Button onClick={addToCart}>ADD TO CART</Button>
                     </AddContainer>
                 </InfoContainer>
             </Wrapper>
